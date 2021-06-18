@@ -1,0 +1,320 @@
+   || N |
+=========
+ T || F |
+---------
+ F || T |
+---------
+ i ||-i |
+---------
+-i || i |
+---------
+ o || o |
+---------
+ To||-Fo|
+---------
+-To|| Fo|
+---------
+ Fo||-To|
+---------
+-Fo|| To|
+
+ A || T | F | i |-i | o | To|-To| Fo|-Fo|
+=========================================
+ T || T | T | T | T | T | T | T | T | T |
+-----------------------------------------
+ F ||   | F | i |-i | o | To|-To| Fo|-Fo|
+-----------------------------------------
+ i ||       | i | T | To| To| T | i | To|
+-----------------------------------------
+-i ||           |-i |-To| T |-To|-To|-i |
+-----------------------------------------
+ o ||               | o | To|-To| o | o |
+-----------------------------------------
+ To||                   | To| T | To| To|
+-----------------------------------------
+-To||                       |-To| To| To|
+-----------------------------------------
+ Fo||                           | Fo| o |
+-----------------------------------------
+-Fo||                               |-Fo|
+
+ K || T | F | i |-i | o | To|-To| Fo|-Fo|
+=========================================
+ T || T | F | i |-i | o | To|-To| Fo|-Fo|
+-----------------------------------------
+ F ||   | F | F | F | F | F | F | F | F |
+-----------------------------------------
+ i ||       | i | F | Fo| i | Fo| Fo| F |
+-----------------------------------------
+-i ||           |-i |-Fo|-Fo|-i | F |-Fo|
+-----------------------------------------
+ o ||               | o | To|-To| Fo|-Fo|
+-----------------------------------------
+ To||                   | To| o | Fo|-Fo|
+-----------------------------------------
+-To||                       |-To| Fo|-Fo|
+-----------------------------------------
+ Fo||                           | Fo| F |
+-----------------------------------------
+-Fo||                               |-Fo|
+
+ C || T | F | i |-i | o | To|-To| Fo|-Fo|1st
+=========================================
+ T || T | T | T | T | T | T | T | T | T |
+-----------------------------------------
+ F || F | T |-i | i | o |-Fo| Fo|-To| o |
+-----------------------------------------
+ i || i | T | T | i | To| To| i | T | To|
+-----------------------------------------
+-i ||-i | T |-i | T |-To|-i |-To|-To|-To|
+-----------------------------------------
+ o || F | T |-To| To| o | o | o |-To| To|
+-----------------------------------------
+ To|| To| T | T | To| To| To| To| T | To|
+-----------------------------------------
+-To||-To| T |-To| T |-To| To| To|-To| T |
+-----------------------------------------
+ Fo|| Fo| T |-To| i | o | o | Fo| To| To|
+-----------------------------------------
+-Fo||-Fo| T |-i | To| o |-Fo| o | To| To|
+2nd
+
+ E || T | F | i |-i | o | To|-To| Fo|-Fo|
+=========================================
+ T || T | F | i |-i | o | To|-To| Fo|-Fo|
+-----------------------------------------
+ F ||   | T |-i | i | o |-Fo| Fo|-To| o |
+-----------------------------------------
+ i ||       | T | F | F | To| Fo|-To|-Fo|
+-----------------------------------------
+-i ||           | T | o |-Fo|-To| Fo| o |
+-----------------------------------------
+ o ||               | o | To| To|-To|-To|
+-----------------------------------------
+ To||                   | To| To| o | o |
+-----------------------------------------
+-To||                       | To| Fo| Fo|
+-----------------------------------------
+ Fo||                           | To| To|
+-----------------------------------------
+-Fo||                               | To|
+
+1 x-wff's indeterminate is stronger than SQL's NULL because it adds reference.
+  'i' names a unique proposition that is unknown to be T or F, so a formula 
+  like AiNi turns out to be T because (i = T or i = F), and in the first case, 
+  the first i satisfies the 'or' and in the second case, the second i becomes 
+  T, satisfying the 'or'. In either case the formula is T, so the formula is 
+  T. The same principle applies to equivalence: Eii is T because in either case
+  the truth value of i is equivalent to itself.
+
+  Why is i signed? Consider the legal wff AiApNi where p is F. If i is T, then 
+  ApNi is F, which makes AiApNi T. If i is F, then ApNi is T, which makes 
+  AiApNi T. This only works if the truth value of i is kept constant relative 
+  to any negations of i, and without this we would evaluate ApNi to i, making 
+  AipNi equivalent to Aii, which is i, a different result than we just proved. 
+  Ai-i, however, is T, so this is a necessary approach to encode the 
+  properties of a unique i-proposition.
+
+2 Regarding o: the truth value of o is strictly nothing, the empty set. How is 
+  o interpreted in the truth tables? Here is an attempt: if we define the 
+  connectives, ex. A, in terms of T satisfaction, A is T when it has at least 
+  one point of T sat. Since o does not provide T sat., o is functionally 
+  equivalent to F. But what if we define the connectives in terms of F 
+  dissatisfaction? For A, A is F when it has 2 points of F dissat. Now, if we 
+  consider how to count o, o does not provide any points of F dissat., so it 
+  must be functionally equivalent to T. But there is no way to justify 
+  defining our connectives out of T sat. rather than F dissat. or vice versa, 
+  and o cannot conceivably count as both T and F. We must resolve to evaluate 
+  connectives with o as indeterminate, i.e. o, unless otherwise satisfied or 
+  dissatisfied; eg., Apo is still T if p is T. This is because the disjunction 
+  is true enough; but, Aqo where q is F will never be false enough to make 
+  the formula false, nor will it be true enough to make truth, so it must 
+  evaluate to undefined.
+
+  Mixing this with indeterminacy yeilds more difficulty: Aio is either T or o, 
+  but we lack notation for this disjunctive evaluation, which is indeterminate 
+  over a truth value or undefined. Call this special indeterminate value 'To'.
+  For A-io, the notation is '-To', which is needed to account for AiAio being 
+  To and A-iAio being T.
+
+misc:
+    distribution of values by connective (X: T, F, i, -i, o, To, -To, Fo, -Fo):
+    N: 1, 1, 1, 1, 1, 1, 1, 1, 1
+    A: 
+    K: 
+    C: 
+    E: 
+
+indeterminate-with-o definitions and proofs:
+
+i := (T:T, F:F)
+
+-i := (T:F, F:T)
+
+Aio
+i=T -> ATo -> T
+i=F -> AFo -> o
+:= To
+(T:T, F:o)
+
+A-io
+i=T -> AFo -> o
+i=F -> ATo -> T
+:= -To
+(T:o, F:T)
+
+Kio
+i=T -> ATo -> o
+i=F -> AFo -> F
+:= Fo
+(T:o, F:F)
+
+K-io
+i=T -> KFo -> F
+i=F -> KTo -> o
+:= -Fo
+(T:F, F:o)
+
+Thrm io.1: Any formula that matches up with one of the above standard io 
+          bases at the same hypthothetical truth values of i bears that truth 
+          value. (subtheorem of propositional truth-equivalence)
+
+--N--
+
+NTo <- NAio |- K-io
+.: -Fo
+
+N-To <- NA-io |- Kio
+.: Fo
+
+NFo <- NKio |- A-io
+.: -To
+
+N-Fo <- NK-io |- Aio
+.: To
+
+--A--
+
+AToTo <- AAioAio
+i=T -> ATT -> T
+i=F -> Aoo -> o
+.: To
+
+ATo-To <- AAioA-io
+i=T -> ATo -> T
+i=F -> ATo -> T
+.: T
+
+A-To-To <- AA-ioA-io
+i=T -> Aoo -> o
+i=F -> ATT -> T
+.: -To
+
+AFoFo <- AKioKio
+i=T -> Aoo -> o
+i=F -> AFF -> F
+.: Fo
+
+AFo-Fo <- AKioK-io
+i=T -> AFo -> F
+i=F -> AFo -> F
+.: F
+
+A-Fo-Fo <- AK-ioK-io
+i=T -> AFF -> F
+i=F -> Aoo -> o
+.: -Fo
+
+AToFo <- AAioKio
+i=T -> ATo -> T
+i=F -> AFo -> o
+.: To
+
+A-ToFo <- AA-ioKio
+i=T -> Aoo -> o
+i=F -> ATF -> T
+.: -To
+
+ATo-Fo <- AAioK-io
+i=T -> ATF -> T
+i=F -> Aoo -> o
+.: To
+
+A-To-Fo <- AA-ioK-io
+i=T -> AFo -> o
+i=F -> ATo -> T
+.: -To
+
+AiTo <- AiAio
+i=T -> ATT -> T
+i=F -> AFo -> o
+.: To
+
+A-iTo <- A-iAio
+i=T -> AFT -> T
+i=F -> ATo -> T
+.: T
+
+--K--
+
+KToTo <- KAioAio
+i=T -> KTT -> T
+i=F -> Koo -> o
+.: To
+
+KTo-To <- KAioA-io
+i=T -> KTo -> o
+i=F -> KTo -> o
+.: o
+
+K-To-To <- KA-ioA-io
+i=T -> Koo -> o
+i=F -> KTT -> T
+.: -To
+
+KFoFo <- KKioKio
+i=T -> Koo -> o
+i=F -> KFF -> F
+.: Fo
+
+KFo-Fo <- KKioK-io
+i=T -> KoF -> F
+i=F -> KFo -> F
+.: F
+
+K-Fo-Fo <- KK-ioK-io
+i=T -> KFF -> F
+i=F -> Koo -> o
+.: -Fo
+
+extraneous proofs:
+
+KiKK-ioK-io |- KiK-Fo-Fo
+i=T -> KTKFF -> KTF -> F
+i=F -> KFKoo -> KFo -> F
+.: F
+
+KiKKioK-io |- KiKFo-Fo
+i=T -> KTKFo -> KTF -> F
+i=F -> KFKFo -> KFF -> F
+.: F
+
+KiKioKio |- KiKFoFo
+i=T -> KTKoo -> KTo -> o
+i=F -> KFKFF -> KFF -> F
+.: Fo
+
+K-iKK-ioK-io |- K-iK-Fo-Fo
+i=T -> KFKFF -> KFF -> F
+i=F -> KTKoo -> KTo -> o
+.: -Fo
+
+K-iKKioK-io |- K-iKFo-Fo
+i=T -> KFKFo -> KFF -> F
+i=F -> KTKFo -> KTF -> F
+.: F
+
+K-iKKioKio |- K-iKFoFo
+i=T -> KFKoo -> KFo -> F
+i=F -> KTKFF -> KTF -> F
+.: F
