@@ -3,7 +3,7 @@
 
 """logic.py: Houses wff-analyzing functions.
 truth_eval(str) -> bool: determines whether a wff is true.
-truth_eval.wff_eval(str) -> bool: determines whether a string is a wff.
+wff_eval(str) -> bool: determines whether a string is a wff.
 """
 
 __author__ = "Xavier Peregrino-Lujan"
