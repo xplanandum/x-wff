@@ -59,30 +59,25 @@ def wff_eval(s):
     stack = list(s)
     wffList = []  # bool values will be appended here
     while len(stack) > 0:
-        #print(stack, wffList, sep=', ') # debug
         # atomic wffs (lowercase) count as one wff and can appear
         # anywhere so long as the total num of wffs is
         # not greater than 1 by end:
         if stack[-1] in valid_lows:
             wffList.append(True)
-            #print('atomic branch,', wffList) # debug
             stack.pop()
             continue
         # unary connectives (N) can appear after at least 1 wff has
         # appeared:
         elif stack[-1] == 'N' and len(wffList) >= 1:
-            #print('unary branch,', wffList) # debug
             stack.pop()
             continue
         # binary connectives (C, A, K, E) can appear after at least 2
         # wffs have appeared:
         elif stack[-1] in binary_caps and len(wffList) >= 2:
             wffList.pop()
-            #print('binary branch,', wffList) # debug
             stack.pop()
             continue
         else:
-            #print('fail,', wffList) # debug
             return False
     # string is a wff iff it is exactly 1 wff after evaluating
     # connectives
@@ -90,24 +85,26 @@ def wff_eval(s):
         return True
 
 
-def T_table(conn, v1, v2):
+def t_table(conn, v1, v2):
     """ input: (connective, first truth value, second truth value)
     output: truth value; T, F, o, i, -i, To, -To, Fo, -Fo
     """
     table_file = path_start + 'A_table.txt'
     with open(table_file, 'r') as file:
+        # mappings between truth values and A table file code
         encode = {'F': '0', 'T': '1', 'o': '2', 'i': '3', '-i': '4', 'To': '5',
                   '-To': '6', 'Fo': '7', '-Fo': '8'
                   }
         decode = {'0': 'F', '1': 'T', '2': 'o', '3': 'i', '4': '-i', '5': 'To',
                   '6': '-To', '7': 'Fo', '8': '-Fo'
                   }
+        # N truth table
         negate = {'0': '1', '1': '0', '2': '2', '3': '4', '4': '3', '5': '8',
                   '6': '7', '7': '6', '8': '5'
                   }
 
         if conn == 'N':
-            # note: int conversion not needed because nothing is read from file
+            # int conversion only needed for subscripting the file
             return decode[negate[encode[v1]]]
         elif conn == 'A':
             lines = file.readlines()
@@ -150,48 +147,48 @@ def truth_parse(wff):
     output: truth value of that wff
     """
     # interpret the characters in wff from last to first
-    T_stack = []
+    t_stack = []
     for char in reversed(wff):
         if char == 'p':
             if prop_p:
                 temp = 'T'
             else:
                 temp = 'F'
-            T_stack.append(temp)
+            t_stack.append(temp)
             continue
         elif char == 'q':
             if prop_q:
                 temp = 'T'
             else:
                 temp = 'F'
-            T_stack.append(temp)
+            t_stack.append(temp)
             continue
         elif char == 'r':
             if prop_r:
                 temp = 'T'
             else:
                 temp = 'F'
-            T_stack.append(temp)
+            t_stack.append(temp)
             continue
         elif char == 's':
             if prop_s:
                 temp = 'T'
             else:
                 temp = 'F'
-            T_stack.append(temp)
+            t_stack.append(temp)
             continue
         elif char == 'i':
-            T_stack.append('i')
+            t_stack.append('i')
             continue
         elif char == 'o':
-            T_stack.append('o')
+            t_stack.append('o')
             continue
         elif char == 'N':
-            T_stack.append(T_table(char, T_stack.pop(), None))
+            t_stack.append(t_table(char, t_stack.pop(), None))
         else:
-            T_stack.append(T_table(char, T_stack.pop(), T_stack.pop()))
+            t_stack.append(t_table(char, t_stack.pop(), t_stack.pop()))
             continue
-    return T_stack[0]
+    return t_stack[0]
 
 
 def truth_eval(s):
