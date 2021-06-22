@@ -245,7 +245,8 @@ def main():
     default_mode = 3
     temp = input('pass a formula to wff_eval(): ')
     f1 = Formula(temp, default_mode)
-    print(f1.get_validity)
+    f1.get_validity()
+    print(f1.validity)
     # debug truth assignment to atomic prop. variables:
     #TODO: pull default props from text file, write new ones to same text file
     global path_start
@@ -260,7 +261,8 @@ def main():
     prop_s = True
     temp = input('pass a formula to truth_eval(): ')
     f2 = Formula(temp, default_mode)
-    print(f2.get_truth)
+    f2.get_truth()
+    print(f2.truth)
 
 
 if __name__ == '__main__':
