@@ -32,14 +32,17 @@ class Pff(Exception):
     pass
 
 
-def wff_eval(s):
-    """ input: string, left to right, attempts to encode a wff in prefix
-           form.
+def wff_eval(f):
+    """input1: Formula, Formula.read is the string that can encode a wff.
+           Formula.gamemode is int -> {0: exclude o and i, 1: exclude i,
+           2: exclude o, 3: include all variables}
     output: bool, whether input is a wff or not in x-wff language.
 
       misc: accepts combinations of 'NCAKEpqrsio' characters up to 6 long.
     """
 
+    s = f.read
+    mode = f.gamemode
     # Phase 1 - exclude obvious non-wffs
     valid_caps = ['N', 'C', 'A', 'K', 'E']
     valid_lows = ['p', 'q', 'r', 's', 'o', 'i']
@@ -50,6 +53,16 @@ def wff_eval(s):
     # check that s is not longer than max possible wff size:
     if len(s) > 6:
         return False
+    # check that s is legal in the current gamemode:
+    if mode == 0:
+        if 'o' in s or 'i' in s:
+            return False
+    elif mode == 1:
+        if 'i' in s:
+            return False
+    elif mode == 2:
+        if 'o' in s:
+            return False
     # check that s is atomic if it is one character:
     if len(s) == 1 and s not in valid_lows:
         return False
@@ -91,7 +104,9 @@ def t_table(conn, v1, v2):
     """
     table_file = path_start + 'A_table.txt'
     with open(table_file, 'r') as file:
-        # mappings between truth values and A table file code
+        # mappings between truth values and A table file code.
+        # int numerals represent both a truth value and column/row index in
+        #   the truth table file.
         encode = {'F': '0', 'T': '1', 'o': '2', 'i': '3', '-i': '4', 'To': '5',
                   '-To': '6', 'Fo': '7', '-Fo': '8'
                   }
@@ -142,13 +157,14 @@ def t_table(conn, v1, v2):
             return E_val
 
 
-def truth_parse(wff):
-    """ input: string known to be a wff.
-    output: truth value of that wff
+def truth_parse(f):
+    """ input: Formula, Formula.read is a string known to be a wff in the
+           current gamemode.
+    output: truth value of that wff.
     """
     # interpret the characters in wff from last to first
     t_stack = []
-    for char in reversed(wff):
+    for char in reversed(f.read):
         if char == 'p':
             if prop_p:
                 temp = 'T'
@@ -191,20 +207,45 @@ def truth_parse(wff):
     return t_stack[0]
 
 
-def truth_eval(s):
-    """ input: string, attempts to encode a wff in prefix form.
+def truth_eval(f):
+    """ input: Formula, Formula.read is a string attempting to encode a wff
+           in prefix form.
     output: string, truth value given the predetermined truth values
             of atomic sentences p, q, r, and s.
     """
-    # first pass to wff_test() to test if s is a wff:
-    if wff_eval(s):
-        return truth_parse(s)
+    # first pass to wff_eval() to test if f.read is a wff:
+    if wff_eval(f):
+        return truth_parse(f)
     else:
         raise Pff
 
 
+class Formula:
+    """
+    """
+    def __init__(self, letters, gamemode):
+
+        self.read = letters
+        self.gamemode = gamemode
+        self.validity = None
+        self.truth = None
+
+    def get_validity(self):
+        """stores and returns bool, whether Formula.read is a wff."""
+        self.validity = wff_eval(self)
+        return self.validity
+
+    def get_truth(self):
+        """stores and returns string, truth value of Formula.read."""
+        self.truth = truth_eval(self)
+        return self.truth
+
+
 def main():
-    print(wff_eval(input('pass a formula to wff_eval(): ')))
+    default_mode = 3
+    temp = input('pass a formula to wff_eval(): ')
+    f1 = Formula(temp, default_mode)
+    print(f1.get_validity)
     # debug truth assignment to atomic prop. variables:
     #TODO: pull default props from text file, write new ones to same text file
     global path_start
@@ -217,7 +258,9 @@ def main():
     prop_r = True
     global prop_s
     prop_s = True
-    print(truth_eval(input('pass a formula to truth_eval(): ')))
+    temp = input('pass a formula to truth_eval(): ')
+    f2 = Formula(temp, default_mode)
+    print(f2.get_truth)
 
 
 if __name__ == '__main__':
