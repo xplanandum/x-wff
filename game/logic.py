@@ -33,7 +33,7 @@ class Pff(Exception):
 
 
 def wff_eval(f):
-    """input1: Formula, Formula.read is the string that can encode a wff.
+    """ input: Formula, Formula.read is the string that can encode a wff.
            Formula.gamemode is int -> {0: exclude o and i, 1: exclude i,
            2: exclude o, 3: include all variables}
     output: bool, whether input is a wff or not in x-wff language.
