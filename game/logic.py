@@ -46,10 +46,12 @@ def wff_eval(s, mode):
     # Phase 1 - exclude obvious non-wffs
     valid_caps = ['N', 'C', 'A', 'K', 'E']
     valid_lows = ['p', 'q', 'r', 's', 'o', 'i']
+    # check that s contains at least one propositional variable:
+    if len([x for x in valid_lows if x in s]) == 0:
+        return False
     # check that s contains all and only valid letters:
-    for char in list(s):
-        if char not in valid_caps and char not in valid_lows:
-            return False
+    if len([x for x in s if x in valid_caps or x in valid_lows]) == 0:
+        return False
     # check that s is not longer than max possible wff size:
     if len(s) > 6:
         return False
@@ -96,6 +98,8 @@ def wff_eval(s, mode):
     # connectives
     if len(wffList) == 1:
         return True
+    else:
+        return False
 
 
 def t_table(conn, val1, val2):
