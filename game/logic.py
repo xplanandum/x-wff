@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """logic.py: Houses wff-analyzing functions.
+Formula -> bundles string data with evaluative data about that string
+  (validity and truth value).
 truth_eval(str) -> bool: determines whether a wff is true.
 wff_eval(str) -> bool: determines whether a string is a wff.
 """
@@ -19,6 +21,7 @@ if __name__ != '__main__':
     prop_q = True
     prop_r = True
     prop_s = True
+    #TODO: use os module to get absolute path to root folder, maybe
     path_start = 'game/'
 
 
@@ -32,17 +35,14 @@ class Pff(Exception):
     pass
 
 
-def wff_eval(f):
-    """ input: Formula, Formula.read is the string that can encode a wff.
-           Formula.gamemode is int -> {0: exclude o and i, 1: exclude i,
-           2: exclude o, 3: include all variables}
+def wff_eval(s, mode):
+    """ input: s is string that can encode a wff,
+           mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
+           3: include all variables}
     output: bool, whether input is a wff or not in x-wff language.
 
       misc: accepts combinations of 'NCAKEpqrsio' characters up to 6 long.
     """
-
-    s = f.read
-    mode = f.gamemode
     # Phase 1 - exclude obvious non-wffs
     valid_caps = ['N', 'C', 'A', 'K', 'E']
     valid_lows = ['p', 'q', 'r', 's', 'o', 'i']
@@ -157,14 +157,14 @@ def t_table(conn, v1, v2):
             return E_val
 
 
-def truth_parse(f):
+def truth_parse(s):
     """ input: Formula, Formula.read is a string known to be a wff in the
            current gamemode.
     output: truth value of that wff.
     """
     # interpret the characters in wff from last to first
     t_stack = []
-    for char in reversed(f.read):
+    for char in reversed(s):
         if char == 'p':
             if prop_p:
                 temp = 'T'
@@ -207,21 +207,24 @@ def truth_parse(f):
     return t_stack[0]
 
 
-def truth_eval(f):
-    """ input: Formula, Formula.read is a string attempting to encode a wff
-           in prefix form.
+def truth_eval(s, mode):
+    """ input: s is string attempting to encode a wff in prefix form.
+           mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
+           3: include all variables}
     output: string, truth value given the predetermined truth values
             of atomic sentences p, q, r, and s.
     """
     # first pass to wff_eval() to test if f.read is a wff:
-    if wff_eval(f):
-        return truth_parse(f)
+    if wff_eval(s, mode):
+        return truth_parse(s)
     else:
         raise Pff
 
 
 class Formula:
-    """
+    """Stores string of a potential wff, int of gamemode to evaluate in.
+    get_validity() returns and stores bool, whether string is a wff.
+    get_truth() returns and stores str, truth value of that wff.
     """
     def __init__(self, letters, gamemode):
 
@@ -232,23 +235,22 @@ class Formula:
 
     def get_validity(self):
         """stores and returns bool, whether Formula.read is a wff."""
-        self.validity = wff_eval(self)
+        self.validity = wff_eval(self.read, self.gamemode)
         return self.validity
 
     def get_truth(self):
         """stores and returns string, truth value of Formula.read."""
-        self.truth = truth_eval(self)
+        self.truth = truth_eval(self.read, self.gamemode)
         return self.truth
 
 
 def main():
-    default_mode = 3
+    debug_mode = 3
     temp = input('pass a formula to wff_eval(): ')
-    f1 = Formula(temp, default_mode)
+    f1 = Formula(temp, debug_mode)
     f1.get_validity()
     print(f1.validity)
     # debug truth assignment to atomic prop. variables:
-    #TODO: pull default props from text file, write new ones to same text file
     global path_start
     path_start = ''
     global prop_p
@@ -260,7 +262,7 @@ def main():
     global prop_s
     prop_s = True
     temp = input('pass a formula to truth_eval(): ')
-    f2 = Formula(temp, default_mode)
+    f2 = Formula(temp, debug_mode)
     f2.get_truth()
     print(f2.truth)
 
