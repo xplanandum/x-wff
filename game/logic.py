@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """logic.py: Houses wff-analyzing functions.
-Formula -> bundles string data with evaluative data about that string
+Formula -> stores string data with evaluative data about that string
   (validity and truth value).
-truth_eval(str) -> bool: determines whether a wff is true.
-wff_eval(str) -> bool: determines whether a string is a wff.
+truth_eval(str, int) -> bool: determines whether a wff is true.
+wff_eval(str, int) -> bool: determines whether a string is a wff.
+in above funcs, int is gamemode variable.
 """
 
 __author__ = "Xavier Peregrino-Lujan"
@@ -16,18 +17,19 @@ __contact__ = "xaviperluj@gmail.com"
 __status__ = "Development"  # or Prototype, Production
 
 
+# debug block for testing in other modules
 if __name__ != '__main__':
     prop_p = True
     prop_q = True
     prop_r = True
     prop_s = True
-    #TODO: use os module to get absolute path to root folder, maybe
+    # TODO: use os module to get absolute path to root folder, maybe
     path_start = 'game/'
 
 
 class Pff(Exception):
     """raise when not a wff, but a pff.
-    meta-exception occurs when argument is passed.
+    do not pass with an argument.
     """
     def __init__(self):
         default = 'Poorly-formed formula.'
@@ -36,12 +38,10 @@ class Pff(Exception):
 
 
 def wff_eval(s, mode):
-    """ input: s is string that can encode a wff,
-           mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
-           3: include all variables}
+    """input: s is string that can encode a wff,
+    mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
+      3: include all variables}
     output: bool, whether input is a wff or not in x-wff language.
-
-      misc: accepts combinations of 'NCAKEpqrsio' characters up to 6 long.
     """
     # Phase 1 - exclude obvious non-wffs
     valid_caps = ['N', 'C', 'A', 'K', 'E']
@@ -98,68 +98,76 @@ def wff_eval(s, mode):
         return True
 
 
-def t_table(conn, v1, v2):
-    """ input: (connective, first truth value, second truth value)
+def t_table(conn, val1, val2):
+    """input: (connective, first truth value, second truth value)
     output: truth value; T, F, o, i, -i, To, -To, Fo, -Fo
     """
-    table_file = path_start + 'A_table.txt'
-    with open(table_file, 'r') as file:
-        # mappings between truth values and A table file code.
-        # int numerals represent both a truth value and column/row index in
-        #   the truth table file.
-        encode = {'F': '0', 'T': '1', 'o': '2', 'i': '3', '-i': '4', 'To': '5',
-                  '-To': '6', 'Fo': '7', '-Fo': '8'
-                  }
-        decode = {'0': 'F', '1': 'T', '2': 'o', '3': 'i', '4': '-i', '5': 'To',
-                  '6': '-To', '7': 'Fo', '8': '-Fo'
-                  }
-        # N truth table
-        negate = {'0': '1', '1': '0', '2': '2', '3': '4', '4': '3', '5': '8',
-                  '6': '7', '7': '6', '8': '5'
-                  }
+    # mappings between truth values and A table file code.
+    # int numerals represent both a truth value and column/row index in
+    #   the truth table file.
+    # Ex. ('T', 'F') is encoded ('1', '0'), which is found at lines[1][0].
+    encode = {'F': '0', 'T': '1', 'o': '2', 'i': '3', '-i': '4', 'To': '5',
+              '-To': '6', 'Fo': '7', '-Fo': '8'
+              }
+    decode = {'0': 'F', '1': 'T', '2': 'o', '3': 'i', '4': '-i', '5': 'To',
+              '6': '-To', '7': 'Fo', '8': '-Fo'
+              }
+    # N truth table
+    negate = {'0': '1', '1': '0', '2': '2', '3': '4', '4': '3', '5': '8',
+              '6': '7', '7': '6', '8': '5'
+              }
 
-        if conn == 'N':
-            # int conversion only needed for subscripting the file
-            return decode[negate[encode[v1]]]
-        elif conn == 'A':
+    if conn == 'N':
+        # int conversion only needed for subscripting the file
+        return decode[negate[encode[val1]]]
+
+    table_file = path_start + 'A_table.txt'
+    if conn == 'A':
+        with open(table_file, 'r') as file:
             lines = file.readlines()
-            A_code = lines[int(encode[v1])][int(encode[v2])]
-            A_val = decode[A_code]
-            return A_val
-        elif conn == 'K':
+            a_code = lines[int(encode[val1])][int(encode[val2])]
+            a_val = decode[a_code]
+            return a_val
+
+    elif conn == 'K':
+        with open(table_file, 'r') as file:
             lines = file.readlines()
             # Kxy <=> NANxNy
-            nv1 = negate[encode[v1]]
-            nv2 = negate[encode[v2]]
-            K_code = negate[lines[int(nv1)][int(nv2)]]
-            K_val = decode[K_code]
-            return K_val
-        elif conn == 'C':
+            neg_val1 = negate[encode[val1]]
+            neg_val2 = negate[encode[val2]]
+            k_code = negate[lines[int(neg_val1)][int(neg_val2)]]
+            k_val = decode[k_code]
+            return k_val
+
+    elif conn == 'C':
+        with open(table_file, 'r') as file:
             lines = file.readlines()
             # Cxy <=> ANxy
-            nv1 = negate[encode[v1]]
-            C_code = lines[int(nv1)][int(encode[v2])]
-            C_val = decode[C_code]
-            return C_val
-        elif conn == 'E':
+            neg_val1 = negate[encode[val1]]
+            c_code = lines[int(neg_val1)][int(encode[val2])]
+            c_val = decode[c_code]
+            return c_val
+
+    elif conn == 'E':
+        with open(table_file, 'r') as file:
             lines = file.readlines()
             # Exy <=> NANANxyNANyx
-            cv1 = encode[v1]
-            cv2 = encode[v2]
-            nv1 = negate[cv1]
-            nv2 = negate[cv2]
+            code_val1 = encode[val1]
+            code_val2 = encode[val2]
+            neg_val1 = negate[code_val1]
+            neg_val2 = negate[code_val2]
             # get sub-disjunts ANxy and ANyx
-            s_dis1 = lines[int(nv1)][int(cv2)]
-            s_dis2 = lines[int(nv2)][int(cv1)]
+            s_dis1 = lines[int(neg_val1)][int(code_val2)]
+            s_dis2 = lines[int(neg_val2)][int(code_val1)]
             # get NAN(s_sdis1)N(s_dis2)
-            E_code = negate[lines[int(negate[s_dis1])][int(negate[s_dis2])]]
-            E_val = decode[E_code]
-            return E_val
+            e_code = negate[lines[int(negate[s_dis1])][int(negate[s_dis2])]]
+            e_val = decode[e_code]
+            return e_val
 
 
 def truth_parse(s):
-    """ input: Formula, Formula.read is a string known to be a wff in the
-           current gamemode.
+    """input: Formula, Formula.read is a string known to be a wff in the
+      current gamemode.
     output: truth value of that wff.
     """
     # interpret the characters in wff from last to first
@@ -167,31 +175,31 @@ def truth_parse(s):
     for char in reversed(s):
         if char == 'p':
             if prop_p:
-                temp = 'T'
+                prop_val = 'T'
             else:
-                temp = 'F'
-            t_stack.append(temp)
+                prop_val = 'F'
+            t_stack.append(prop_val)
             continue
         elif char == 'q':
             if prop_q:
-                temp = 'T'
+                prop_val = 'T'
             else:
-                temp = 'F'
-            t_stack.append(temp)
+                prop_val = 'F'
+            t_stack.append(prop_val)
             continue
         elif char == 'r':
             if prop_r:
-                temp = 'T'
+                prop_val = 'T'
             else:
-                temp = 'F'
-            t_stack.append(temp)
+                prop_val = 'F'
+            t_stack.append(prop_val)
             continue
         elif char == 's':
             if prop_s:
-                temp = 'T'
+                prop_val = 'T'
             else:
-                temp = 'F'
-            t_stack.append(temp)
+                prop_val = 'F'
+            t_stack.append(prop_val)
             continue
         elif char == 'i':
             t_stack.append('i')
@@ -208,11 +216,11 @@ def truth_parse(s):
 
 
 def truth_eval(s, mode):
-    """ input: s is string attempting to encode a wff in prefix form.
-           mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
-           3: include all variables}
+    """input: s is string attempting to encode a wff in prefix form.
+    mode is int -> {0: exclude o and i, 1: exclude i, 2: exclude o,
+      3: include all variables}
     output: string, truth value given the predetermined truth values
-            of atomic sentences p, q, r, and s.
+      of atomic sentences p, q, r, and s.
     """
     # first pass to wff_eval() to test if f.read is a wff:
     if wff_eval(s, mode):
@@ -222,12 +230,11 @@ def truth_eval(s, mode):
 
 
 class Formula:
-    """Stores string of a potential wff, int of gamemode to evaluate in.
+    """Formula(str, int) str is potential wff, int is gamemode.
     get_validity() returns and stores bool, whether string is a wff.
     get_truth() returns and stores str, truth value of that wff.
     """
     def __init__(self, letters, gamemode):
-
         self.read = letters
         self.gamemode = gamemode
         self.validity = None
@@ -240,8 +247,13 @@ class Formula:
 
     def get_truth(self):
         """stores and returns string, truth value of Formula.read."""
-        self.truth = truth_eval(self.read, self.gamemode)
-        return self.truth
+        try:
+            self.truth = truth_eval(self.read, self.gamemode)
+            return self.truth
+        except Pff:
+            self.validity = False
+            self.truth = 'pff'
+            return self.truth
 
 
 def main():
@@ -268,4 +280,5 @@ def main():
 
 
 if __name__ == '__main__':
+    print('testing logic.py...')
     main()
